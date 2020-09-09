@@ -7,11 +7,14 @@ Single File Godot Runtime Console
 - Add Console.connect_node(self) in _ready on nodes which have acceptable commands for console
 
 # Acceptable command
-Acceptable command can be any function if there is variable named as that function with "_help" at end
+Acceptable command is any function if there is variable named as that function with "_help" at end
 
-Example:
+# Usage example
 ```gdscript
-var cmd_name_help = "Help text";
+func _ready():
+  Console.connect_node(self);
+
+var cmd_name_help = "Text printed when using help command (help cmd_name)";
 func cmd_name(args):#args is Array of string arguments provided after command name
   pass
 ```
