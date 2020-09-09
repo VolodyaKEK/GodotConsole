@@ -16,5 +16,5 @@ func _ready():
 
 var cmd_name_help = "Text printed when using help command (help cmd_name)";
 func cmd_name(args):#args is Array of string arguments provided after command name
-  pass
+  Console.print("Command output");
 ```
