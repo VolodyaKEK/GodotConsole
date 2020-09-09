@@ -10,6 +10,8 @@ Single File Godot Runtime Console
 Acceptable command can be any function if there is variable named as that function with "_help" at end
 
 Example:
+```gdscript
 var cmd_name_help = "Help text";
 func cmd_name(args):#args is Array of string arguments provided after command name
   pass
+```
