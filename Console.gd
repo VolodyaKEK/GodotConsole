@@ -9,12 +9,13 @@ class ConsoleCommand:
 	func call(args):
 		node.call(method, args);
 
+var command_postfix = "_cmd";
 var input_name = "console";
 var label = RichTextLabel.new();
 var line = LineEdit.new();
 
 var history = [];
-var connected = [];
+var commands = {};
 
 func _ready():#get_parent().move_child(self, get_parent().get_child_count()-1);
 	connect_node(self);
@@ -46,59 +47,51 @@ func _ready():#get_parent().move_child(self, get_parent().get_child_count()-1);
 func _process(delta):
 	if Input.is_action_just_pressed(input_name):
 		hide() if visible else popup();
+		if visible:
+			line.grab_focus();
 
 func connect_node(node):
-	connected.append(node);
+	for method in node.get_method_list():
+		var n = method.name;
+		if n.ends_with(command_postfix):
+			commands[n.substr(0, n.length()-command_postfix.length())] = node;
 func disconnect_node(node):
-	connected.remove(connected.find(node));
+	for key in commands.keys():
+		if commands[key] == node:
+			commands.erase(key);
 
 func command(cmd):
-	line.clear();
 	if cmd == "":
 		return;
+	line.clear();
 	self.print("> " + cmd);
 	var split = Array(cmd.split(" "));
 	var method = split.pop_front();
-	var command = get_command(method);
-	command.call(split) if command else self.print("ERR_COMMAND_NOT_FOUND");
+	var command = commands.get(method);
+	command.call(method + command_postfix, split) if command else self.print("[Error] Command not found");
 	history.append(cmd);
-
-func get_all_commands():
-	var commands = [];
-	for node in connected:
-		for p in node.get_property_list():
-			var n = p.name;
-			if n.ends_with("_help"):
-				commands.append(ConsoleCommand.new(node, n.substr(0, n.length()-5)));
-	return commands;
-
-func get_command(cmd):
-	for command in get_all_commands():
-		if command.method == cmd:
-			return command;
-	return null;
 
 func print(s):
 	label.append_bbcode(str(s, "\n"));
 
 var help_help = "help (func_name) [arg0, arg1, ..., argn]";
-func help(args):
+func help_cmd(args):
 	var helps = {};
-	var commands = get_all_commands();
-	for command in commands:
-		helps[command.method] = command.node.get(command.method + "_help");
+	for cmd in commands.keys():
+		var node = commands[cmd];
+		helps[cmd] = node.get(cmd + "_help");
 	for key in helps.keys() if args.size() == 0 else args:
 		var h = helps.get(key);
-		self.print(str("\t", key, " > ", "ERR_COMMAND_NOT_FOUND" if h == null else h));
+		self.print(str(key, " > ", "[Error] Command not found" if h == null else h));
 
 var test_help = "Prints provided arguments";
-func test(args):
+func test_cmd(args):
 	self.print(args);
 
 var history_help = "Prints all entered commands";
-func history(args):
+func history_cmd(args):
 	self.print(PoolStringArray(history).join("\n"));
 
-var clear_help = "";
-func clear(args):
-	label.bbcode_text = "";
+var clear_help = "Clears console";
+func clear_cmd(args):
+	label.clear();
