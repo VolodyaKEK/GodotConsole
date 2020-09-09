@@ -20,6 +20,8 @@ func _ready():#get_parent().move_child(self, get_parent().get_child_count()-1);
 	connect_node(self);
 	window_title = "Console";
 	popup_exclusive = true;
+	resizable = true;
+	rect_min_size = Vector2(200, 100);
 	rect_size = Vector2(500, 300);
 	
 	var c = VBoxContainer.new();
