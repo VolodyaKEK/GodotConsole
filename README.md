@@ -14,7 +14,8 @@ Acceptable command is any function with "_cmd" at the end
 func _ready():
   Console.connect_node(self);
 
-var cmdname_help = "Text printed when using help command (help cmdname)";
-func cmdname_cmd(args):#args is an Array of string arguments provided with command
+const cmdname_desc = "Text printed when using help for this command (help cmdname)"; #Optional
+const cmdname_help = "Text printed when using 'help' command"; #Optional
+func cmdname_cmd(arg0, arg1): #arg0 and arg1 is a string arguments provided with command, there can be any number of arguments
   Console.print("Command output");
 ```
