@@ -46,8 +46,10 @@ func _ready():#get_parent().move_child(self, get_parent().get_child_count()-1);
 
 func _process(delta):
 	if Input.is_action_just_pressed(input_name):
-		hide() if visible else popup();
 		if visible:
+			hide();
+		else:
+			popup();
 			line.grab_focus();
 
 func connect_node(node):
