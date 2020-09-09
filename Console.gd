@@ -70,7 +70,7 @@ func command(cmd):
 	var split = Array(cmd.split(" "));
 	var method = split.pop_front();
 	var command = commands.get(method);
-	command.call(method + command_postfix, split) if command else self.print("[Error] Command not found");
+	command.call(method + command_postfix, split) if command else self.print(str("[Error] Command ", method, " not found"));
 	history.append(cmd);
 
 func print(s):
@@ -84,7 +84,7 @@ func help_cmd(args):
 		helps[cmd] = node.get(cmd + "_help");
 	for key in helps.keys() if args.size() == 0 else args:
 		var h = helps.get(key);
-		self.print(str(key, " > ", "[Error] Command not found" if h == null else h));
+		self.print(str(key, " > ", h if h else ""));
 
 var test_help = "Prints provided arguments";
 func test_cmd(args):
@@ -97,3 +97,6 @@ func history_cmd(args):
 var clear_help = "Clears console";
 func clear_cmd(args):
 	label.clear();
+
+func empty_cmd():
+	pass
