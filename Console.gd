@@ -1,14 +1,5 @@
 extends WindowDialog
 
-class ConsoleCommand:
-	var node;
-	var method;
-	func _init(node, method):
-		self.node = node;
-		self.method = method;
-	func call(args):
-		node.call(method, args);
-
 var command_postfix = "_cmd";
 var input_name = "console";
 var label = RichTextLabel.new();
@@ -16,6 +7,7 @@ var line = LineEdit.new();
 
 var history = [];
 var commands = {};
+var cmd_args_amount = {};
 
 func _ready():#get_parent().move_child(self, get_parent().get_child_count()-1);
 	connect_node(self);
@@ -44,59 +36,69 @@ func _ready():#get_parent().move_child(self, get_parent().get_child_count()-1);
 	line.clear_button_enabled = true;
 	c.add_child(line);
 
-func _process(delta):
+func _process(_delta):
 	if Input.is_action_just_pressed(input_name):
 		if visible:
 			hide();
 		else:
 			popup();
 			line.grab_focus();
+			line.clear();
 
 func connect_node(node):
 	for method in node.get_method_list():
 		var n = method.name;
 		if n.ends_with(command_postfix):
-			commands[n.substr(0, n.length()-command_postfix.length())] = node;
+			n = n.substr(0, n.length()-command_postfix.length());
+			commands[n] = node;
+			cmd_args_amount[n] = method.args.size();
 func disconnect_node(node):
 	for key in commands.keys():
 		if commands[key] == node:
 			commands.erase(key);
+			cmd_args_amount.erase(key);
 
 func command(cmd):
 	if cmd == "":
 		return;
 	line.clear();
 	self.print("> " + cmd);
-	var split = Array(cmd.split(" "));
-	var method = split.pop_front();
-	var command = commands.get(method);
-	command.call(method + command_postfix, split) if command else self.print(str("[Error] Command ", method, " not found"));
+	var args = Array(cmd.split(" "));
+	var command = args.pop_front();
+	var node = commands.get(command);
+	if node:
+		args.resize(cmd_args_amount[command]);
+		node.callv(command + command_postfix, args);
+	else:
+		cmd_not_found(command);
 	history.append(cmd);
 
 func print(s):
 	label.append_bbcode(str(s, "\n"));
 
-var help_help = "help (func_name) [arg0, arg1, ..., argn]";
-func help_cmd(args):
-	var helps = {};
-	for cmd in commands.keys():
-		var node = commands[cmd];
-		helps[cmd] = node.get(cmd + "_help");
-	for key in helps.keys() if args.size() == 0 else args:
-		var h = helps.get(key);
-		self.print(str(key, " > ", h if h else ""));
+func cmd_not_found(command):
+	self.print(str("Command '", command, "' not found"));
 
-var test_help = "Prints provided arguments";
-func test_cmd(args):
-	self.print(args);
+const help_desc = "Use 'help [command]' to get command description";
+const help_help = "Prints all available commands";
+func help_cmd(command):
+	if command != null && !commands.has(command):
+		cmd_not_found(command);
+		return;
+	for cmd in [command] if command != null else commands.keys():
+		var h = commands[cmd].get(cmd + "_help");
+		self.print(str("\t", cmd, "\t", h if h else ""));
+	if command == null:
+		self.print(help_desc);
+	elif commands.has(command):
+		var desc = commands[command].get(command + "_desc");
+		if desc != null:
+			 self.print(desc);
 
-var history_help = "Prints all entered commands";
-func history_cmd(args):
-	self.print(PoolStringArray(history).join("\n"));
+const history_help = "Prints all previously entered commands";
+func history_cmd():
+	self.print("History is empty" if history.size() == 0 else PoolStringArray(history).join("\n"));
 
-var clear_help = "Clears console";
-func clear_cmd(args):
+const clear_help = "Clears console output";
+func clear_cmd():
 	label.clear();
-
-func empty_cmd():
-	pass
