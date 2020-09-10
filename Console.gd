@@ -2,9 +2,12 @@ extends WindowDialog
 
 var command_postfix = "_cmd";
 var input_name = "console";
+var history_up = "ui_up";
+var history_down = "ui_down";
 var label = RichTextLabel.new();
 var line = LineEdit.new();
 
+var current = 0;
 var history = [];
 var commands = {};
 var cmd_args_amount = {};
@@ -42,8 +45,18 @@ func _process(_delta):
 			hide();
 		else:
 			popup();
-			line.grab_focus();
 			line.clear();
+			line.grab_focus();
+	if history.size() > 0 && get_focus_owner() == line:
+		var add = 0;
+		if Input.is_action_just_pressed(history_up):
+			add += 1;
+		if Input.is_action_just_pressed(history_down):
+			add -= 1;
+		if add != 0:
+			current = clamp(current-add, 0, history.size()-1);
+			line.text = history[current];
+			line.caret_position = line.text.length();
 
 func connect_node(node):
 	for method in node.get_method_list():
@@ -72,6 +85,7 @@ func command(cmd):
 	else:
 		cmd_not_found(command);
 	history.append(cmd);
+	current = history.size();
 
 func print(s):
 	label.append_bbcode(str(s, "\n"));
