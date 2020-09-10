@@ -12,7 +12,7 @@ var history = [];
 var commands = {};
 var cmd_args_amount = {};
 
-func _ready():#get_parent().move_child(self, get_parent().get_child_count()-1);
+func _ready():
 	connect_node(self);
 	window_title = "Console";
 	popup_exclusive = true;
@@ -31,6 +31,7 @@ func _ready():#get_parent().move_child(self, get_parent().get_child_count()-1);
 	c.anchor_top = 0;
 	c.anchor_right = 1;
 	
+	label.bbcode_enabled = true;
 	label.size_flags_vertical = SIZE_EXPAND_FILL;
 	label.scroll_following = true;
 	c.add_child(label);
@@ -75,7 +76,7 @@ func command(cmd):
 	if cmd == "":
 		return;
 	line.clear();
-	self.print("> " + cmd);
+	self.print(str("> ", cmd));
 	var args = Array(cmd.split(" "));
 	var command = args.pop_front();
 	var node = commands.get(command);
@@ -99,7 +100,9 @@ func help_cmd(command):
 	if command != null && !commands.has(command):
 		cmd_not_found(command);
 		return;
-	for cmd in [command] if command != null else commands.keys():
+	var keys = commands.keys();
+	keys.sort();
+	for cmd in [command] if command != null else keys:
 		var h = commands[cmd].get(cmd + "_help");
 		self.print(str("\t", cmd, "\t", h if h else ""));
 	if command == null:
@@ -107,7 +110,7 @@ func help_cmd(command):
 	elif commands.has(command):
 		var desc = commands[command].get(command + "_desc");
 		if desc != null:
-			 self.print(desc);
+			self.print(desc);
 
 const history_help = "Prints all previously entered commands";
 func history_cmd():
