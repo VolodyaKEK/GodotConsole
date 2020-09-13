@@ -7,4 +7,5 @@ export_presets.cfg
 .mono/
 data_*/
 
-screenshot.png
+*.png
+*.import
