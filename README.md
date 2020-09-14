@@ -10,6 +10,7 @@
 - Add script `Console.gd` in your project
 - Add `Console.gd` as autoload
 - Add `Console.connect_node(self)` in `_ready` on nodes which have acceptable commands (or just connect them with `Console.connect_node(node)` from anywhere)
+- To popup console you need to setup input action `console` (can be changed setting `Console.input_action` property)
 
 # Acceptable command example
 Acceptable command is any function with "_cmd" at the end. Postfix can be changed setting `Console.command_postfix` property to any string.
