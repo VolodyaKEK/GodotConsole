@@ -4,7 +4,7 @@
 # Features
 - Easy integration in existing project
 - Easy command creation
-- 
+- History navigation (`ui_up` and `ui_down` by default)
 
 # How to use
 - Add script `Console.gd` in your project
@@ -12,7 +12,7 @@
 - Add `Console.connect_node(self)` in `_ready` on nodes which have acceptable commands (or just connect them with `Console.connect_node(node)` from anywhere)
 
 # Acceptable command example
-Acceptable command is any function with "_cmd" at the end
+Acceptable command is any function with "_cmd" at the end. Postfix can be changed setting `Console.command_postfix` property to any string.
 
 ```gdscript
 func _ready():
