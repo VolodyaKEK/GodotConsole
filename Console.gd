@@ -1,7 +1,7 @@
 extends WindowDialog
 
-var command_postfix = "_cmd";
-var input_name = "console";
+var command_postfix = "cmd";
+var input_action = "console";
 var history_up = "ui_up";
 var history_down = "ui_down";
 var label = RichTextLabel.new();
@@ -34,6 +34,7 @@ func _ready():
 	label.bbcode_enabled = true;
 	label.size_flags_vertical = SIZE_EXPAND_FILL;
 	label.scroll_following = true;
+	label.selection_enabled = true;
 	c.add_child(label);
 	
 	line.connect("text_entered", self, "command");
@@ -41,7 +42,7 @@ func _ready():
 	c.add_child(line);
 
 func _process(_delta):
-	if Input.is_action_just_pressed(input_name):
+	if Input.is_action_just_pressed(input_action):
 		if visible:
 			hide();
 		else:
@@ -62,8 +63,8 @@ func _process(_delta):
 func connect_node(node):
 	for method in node.get_method_list():
 		var n = method.name;
-		if n.ends_with(command_postfix):
-			n = n.substr(0, n.length()-command_postfix.length());
+		if n.ends_with("_" + command_postfix):
+			n = n.trim_suffix("_" + command_postfix);
 			commands[n] = node;
 			cmd_args_amount[n] = method.args.size();
 func disconnect_node(node):
@@ -82,7 +83,7 @@ func command(cmd):
 	var node = commands.get(command);
 	if node:
 		args.resize(cmd_args_amount[command]);
-		node.callv(command + command_postfix, args);
+		node.callv(command + "_" + command_postfix, args);
 	else:
 		cmd_not_found(command);
 	history.append(cmd);
