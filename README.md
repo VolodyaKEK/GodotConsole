@@ -2,6 +2,7 @@
 ![Alt text](/screenshot.png?raw=true "GodotConsole")
 
 # Features
+- Everything contained in single file `Console.gd`
 - Easy integration in existing project
 - Easy command creation
 - History navigation (`ui_up` and `ui_down` by default)
