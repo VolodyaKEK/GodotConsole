@@ -23,7 +23,7 @@ func _ready():
 const cmdname_desc = "Text printed when using help for this command (help cmdname)"; #Optional
 const cmdname_help = "Text printed when using 'help' command"; #Optional
 func cmdname_cmd(arg0, arg1):
-  #arg0 and arg1 is a string arguments provided after command,
+  #arg0 and arg1 is an arguments provided after command,
   #there can be any number of arguments
   Console.print("Command output");
 ```
