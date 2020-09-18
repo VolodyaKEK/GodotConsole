@@ -1,9 +1,19 @@
 extends WindowDialog
 
-var command_postfix = "cmd";
-var input_action = "console";
-var history_up = "ui_up";
-var history_down = "ui_down";
+class ConsoleBBCodeColor extends RichTextEffect:
+	var bbcode = "bbcode";
+	var colors;
+	func _init(_colors):
+		colors = _colors;
+	func _process_custom_fx(fx):
+		fx.color = colors.get(fx.env.get("c"));
+		return true;
+
+export var command_postfix := "cmd";
+export var input_action := "console";
+export var history_up := "ui_up";
+export var history_down := "ui_down";
+export var convert_arguments := false;
 var label = RichTextLabel.new();
 var line = LineEdit.new();
 
@@ -12,7 +22,13 @@ var history = [];
 var commands = {};
 var cmd_args_amount = {};
 
-func _ready():
+var bbcode_colors = {
+	line = Color(0.8, 0.8, 0.8, 1),
+	error = Color(1, 0.2, 0.2, 1),
+	warning = Color(1, 1, 0.2, 1),
+};
+
+func _init():
 	connect_node(self);
 	window_title = "Console";
 	popup_exclusive = true;
@@ -35,6 +51,7 @@ func _ready():
 	label.size_flags_vertical = SIZE_EXPAND_FILL;
 	label.scroll_following = true;
 	label.selection_enabled = true;
+	label.install_effect(ConsoleBBCodeColor.new(bbcode_colors));
 	c.add_child(label);
 	
 	line.connect("text_entered", self, "command");
@@ -77,9 +94,22 @@ func command(cmd):
 	if cmd == "":
 		return;
 	line.clear();
-	self.print(str("> ", cmd));
+	self.print(str("\n" if label.text.length() != 0 else "", "> ", cmd), "line");
 	var args = Array(cmd.split(" "));
 	var command = args.pop_front();
+	if convert_arguments:
+		for i in args.size():
+			var arg = args[i].to_lower();
+			var new_arg = arg;
+			if arg == "false":
+				new_arg = false;
+			elif arg == "true":
+				new_arg = true;
+			elif arg.is_valid_float():
+				new_arg = float(arg);
+			elif arg.is_valid_integer():
+				new_arg = int(arg);
+			args[i] = new_arg;
 	var node = commands.get(command);
 	if node:
 		args.resize(cmd_args_amount[command]);
@@ -89,34 +119,42 @@ func command(cmd):
 	history.append(cmd);
 	current = history.size();
 
-func print(s):
-	label.append_bbcode(str(s, "\n"));
+func print(s, bbcode=null):
+	write(str("\n" if label.text.length() != 0 else "", s), bbcode);
+func write(s, bbcode=null):
+	label.append_bbcode(str(s) if bbcode == null else bbcode_wrap(s, bbcode));
+func bbcode_wrap(s, bbcode):
+	return str("[bbcode c=", bbcode, "]", s, "[/bbcode]");
 
 func cmd_not_found(command):
-	self.print(str("Command '", command, "' not found"));
+	self.print(str("Command '", command, "' not found"), "error");
 
-const help_desc = "Use 'help [command]' to get command description";
-const help_help = "Prints all available commands";
+var help_desc = "Use 'help [command]' to get command description";
+var help_help = "Prints all available commands";
 func help_cmd(command):
 	if command != null && !commands.has(command):
 		cmd_not_found(command);
 		return;
 	var keys = commands.keys();
 	keys.sort();
+	
+	var help_table = "[table=2]";
 	for cmd in [command] if command != null else keys:
 		var h = commands[cmd].get(cmd + "_help");
-		self.print(str("\t", cmd, "\t", h if h else ""));
+		help_table += str("[cell]", cmd, "\t[/cell][cell]", h if h else "", "[/cell]");
+	self.print(str(help_table, "[/table]"));
+	
 	if command == null:
 		self.print(help_desc);
-	elif commands.has(command):
+	else:
 		var desc = commands[command].get(command + "_desc");
 		if desc != null:
 			self.print(desc);
 
-const history_help = "Prints all previously entered commands";
+var history_help = "Prints all previously entered commands";
 func history_cmd():
 	self.print("History is empty" if history.size() == 0 else PoolStringArray(history).join("\n"));
 
-const clear_help = "Clears console output";
+var clear_help = "Clears console output";
 func clear_cmd():
 	label.clear();
