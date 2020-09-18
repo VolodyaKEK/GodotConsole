@@ -13,7 +13,7 @@ export var command_postfix := "cmd";
 export var input_action := "console";
 export var history_up := "ui_up";
 export var history_down := "ui_down";
-export var convert_arguments := false;
+export var convert_arguments := true;
 var label = RichTextLabel.new();
 var line = LineEdit.new();
 
