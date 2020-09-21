@@ -6,7 +6,9 @@ class ConsoleBBCodeColor extends RichTextEffect:
 	func _init(_colors):
 		colors = _colors;
 	func _process_custom_fx(fx):
-		fx.color = colors.get(fx.env.get("c"));
+		var c = colors.get(fx.env.get("c"));
+		if c is Color:
+			fx.color = c;
 		return true;
 
 export var command_postfix := "cmd";
@@ -14,15 +16,15 @@ export var input_action := "console";
 export var history_up := "ui_up";
 export var history_down := "ui_down";
 export var convert_arguments := true;
-var label = RichTextLabel.new();
-var line = LineEdit.new();
+var label := RichTextLabel.new();
+var line := LineEdit.new();
 
-var current = 0;
-var history = [];
-var commands = {};
-var cmd_args_amount = {};
+var current := 0;
+const history := [];
+const commands := {};
+const cmd_args_amount := {};
 
-var bbcode_colors = {
+const bbcode_colors = {
 	line = Color(0.8, 0.8, 0.8, 1),
 	error = Color(1, 0.2, 0.2, 1),
 	warning = Color(1, 1, 0.2, 1),
@@ -84,6 +86,7 @@ func connect_node(node):
 			n = n.trim_suffix("_" + command_postfix);
 			commands[n] = node;
 			cmd_args_amount[n] = method.args.size();
+			print(method.args)
 func disconnect_node(node):
 	for key in commands.keys():
 		if commands[key] == node:
