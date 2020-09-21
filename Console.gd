@@ -86,7 +86,6 @@ func connect_node(node):
 			n = n.trim_suffix("_" + command_postfix);
 			commands[n] = node;
 			cmd_args_amount[n] = method.args.size();
-			print(method.args)
 func disconnect_node(node):
 	for key in commands.keys():
 		if commands[key] == node:
