@@ -56,6 +56,7 @@ func _init():
 	label.install_effect(ConsoleBBCodeColor.new(bbcode_colors));
 	c.add_child(label);
 	
+# warning-ignore:return_value_discarded
 	line.connect("text_entered", self, "command");
 	line.clear_button_enabled = true;
 	c.add_child(line);
@@ -75,6 +76,7 @@ func _process(_delta):
 		if Input.is_action_just_pressed(history_down):
 			add -= 1;
 		if add != 0:
+# warning-ignore:narrowing_conversion
 			current = clamp(current-add, 0, history.size()-1);
 			line.text = history[current];
 			line.caret_position = line.text.length();
@@ -89,7 +91,9 @@ func connect_node(node):
 func disconnect_node(node):
 	for key in commands.keys():
 		if commands[key] == node:
+# warning-ignore:return_value_discarded
 			commands.erase(key);
+# warning-ignore:return_value_discarded
 			cmd_args_amount.erase(key);
 
 func command(cmd):
@@ -124,9 +128,10 @@ func command(cmd):
 func print(s, bbcode=null):
 	write(str("\n" if label.text.length() != 0 else "", s), bbcode);
 func write(s, bbcode=null):
-	label.append_bbcode(str(s) if bbcode == null else bbcode_wrap(s, bbcode));
+# warning-ignore:return_value_discarded
+	label.append_bbcode(bbcode_wrap(s, bbcode));
 func bbcode_wrap(s, bbcode):
-	return str("[bbcode c=", bbcode, "]", s, "[/bbcode]");
+	return str(s) if bbcode == null else str("[bbcode c=", bbcode, "]", s, "[/bbcode]");
 
 func cmd_not_found(command):
 	self.print(str("Command '", command, "' not found"), "error");
