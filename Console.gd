@@ -76,8 +76,7 @@ func _process(_delta):
 		if Input.is_action_just_pressed(history_down):
 			add -= 1;
 		if add != 0:
-# warning-ignore:narrowing_conversion
-			current = clamp(current-add, 0, history.size()-1);
+			current = int(clamp(current-add, 0, history.size()-1));
 			line.text = history[current];
 			line.caret_position = line.text.length();
 
