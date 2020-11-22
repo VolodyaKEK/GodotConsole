@@ -3,7 +3,7 @@
 
 # Features
 - Everything contained in single file `Console.gd`
-- Easy integration in existing project
+- Easy integration in an existing project
 - Easy command creation
 - History navigation (`ui_up` and `ui_down` by default)
 
@@ -14,7 +14,7 @@
 - To popup console you need to setup input action `console` (can be changed setting `Console.input_action` property)
 
 # Acceptable command example
-Acceptable command is any function with "_cmd" at the end. Postfix can be changed setting `Console.command_postfix` property to any string.
+An acceptable command is any function with "_cmd" at the end. Postfix can be changed by setting the `Console.command_postfix` property to any string.
 
 ```gdscript
 func _ready():
